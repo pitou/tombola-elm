@@ -1,0 +1,105 @@
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+
+    <style>
+      body {
+        width: 100%;
+        height: 100%;
+        background: #4d8dcb no-repeat;
+        background-size: cover;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      .gridContainer {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .grid {
+        width: 1112px;
+        height: 1012px;
+        position: relative;
+      }
+      .tile {
+        font-family: 'Quicksand', sans-serif;
+        font-size: 45px;
+        font-weight: bold;
+        color: #253b8b;
+        background-color: #ffffff;
+        position: absolute;
+        border: 2px solid #dfe1de;
+        width: 108px;
+        height: 108px;
+        padding: 0;
+        cursor: pointer;
+      }
+      .tile:hover {
+        border-color: grey;
+      }
+      .selected {
+        background-color: #c1e3ff;
+      }
+      .latest {
+        background-color: #f49a1c;
+      }
+      .reset {
+        position: absolute;
+        top: 50%;
+        right: 8%;
+        background-color: #ffffff;
+        font-size: 20px;
+        padding: 10px;
+        cursor: pointer;
+        /*opacity: 0;*/
+        opacity: 1;
+      }
+      .reset:hover {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="elm-node"></div>
+
+    <script src="main.min.js"></script>
+
+    <script>
+      var storageKey = "tiles";
+
+      var flags = {
+        selectedTiles: localStorage.getItem(storageKey) || '[]'
+      };
+      var app = Elm.Main.init({
+        node: document.getElementById("elm-node"),
+        flags: flags
+      });
+
+      // If a port is declared but not used into the application,
+      // it will be undefined here due to the Elm unused code removal.
+      app.ports.cache.subscribe(function(val) {
+        if (val === null) {
+          localStorage.removeItem(storageKey);
+        } else {
+          localStorage.setItem(storageKey, JSON.stringify(val));
+        }
+      });
+
+      app.ports.askForTileRevertConfirmation.subscribe(function(tile) {
+        if (window.confirm("Vuoi deselezionare la casella " + tile + "?")) {
+          app.ports.tileRevertConfirmation.send(tile);
+        }
+      });
+
+      app.ports.askForGridResetConfirmation.subscribe(function() {
+        if (window.confirm("Vuoi svuotare la griglia?")) {
+          app.ports.gridResetConfirmation.send(null);
+        }
+      });
+    </script>
+  </body>
+</html>
